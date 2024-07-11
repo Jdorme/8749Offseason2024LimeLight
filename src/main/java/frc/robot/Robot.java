@@ -25,7 +25,6 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run(); 
-    m_visionodm.updateodm();
     
   }
 
@@ -61,7 +60,10 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    m_visionodm.updateodm();
+    
+  }
 
   @Override
   public void teleopExit() {}

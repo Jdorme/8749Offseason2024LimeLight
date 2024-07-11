@@ -14,12 +14,15 @@ public class VisionOdm {
 
     }
     public void updateodm(){ 
-     boolean doRejectUpdate = false;
+    
+    
+      boolean doRejectUpdate = false;
+     boolean equalNull;
      CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain;
      
+    
      LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-farmone");
-      
-      if(mt1.tagCount == 1 && mt1.rawFiducials.length == 1)
+       if(mt1.tagCount == 1 && mt1.rawFiducials.length == 1)
       {
         if(mt1.rawFiducials[0].ambiguity > .7)
         {
