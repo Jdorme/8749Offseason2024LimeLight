@@ -40,6 +40,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+     m_visionodm.updateodm();
 
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
@@ -47,7 +48,9 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+     m_visionodm.updateodm();
+  }
 
   @Override
   public void autonomousExit() {}
@@ -57,6 +60,7 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+     m_visionodm.updateodm();
   }
 
   @Override
