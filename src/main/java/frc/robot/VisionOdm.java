@@ -112,6 +112,7 @@ public class VisionOdm {
         if(farmOne !=null){
           SmartDashboard.putString("Limelight1 Status", "ready");
         if(Math.abs(AngularVelocity) > 720) // if our angular velocity is greater than 720 degrees per second, ignore vision updates
+        // This is the process to reject bad poses
         {
           farmOneDoRejectUpdate = true;
         }
