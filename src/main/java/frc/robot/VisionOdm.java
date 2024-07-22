@@ -10,84 +10,88 @@ import frc.robot.LimelightHelpers.PoseEstimate;
 /** Add your docs here. */
 public class VisionOdm {
 
+  boolean farmOneDoRejectUpdate = false;
+     boolean farmTwoDoRejectUpdate = false;
+     boolean equalNull;
+     //Pose Estimation determines a robot’s position and orientation on the field by fusing sensor data, accounting for drift and noise, and providing accurate, latency-compensated estimates for different drivetrains.
+     PoseEstimate bestPose;
+     PoseEstimate farmOne;
+     PoseEstimate farmTwo;
+     CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain;
+     // Meta MegaTag2 offers more precise and reliable localization compared to the original MegaTag system
+     boolean meta2 = false; //false means you will use the orginal meta while true means you will use MegaTag2 
+     
+     double AngularVelocity = drivetrain.getPigeon2().getAngularVelocityZWorld().getValueAsDouble();
+     
+     double rotation = drivetrain.getPigeon2().getRotation2d().getDegrees();
     public VisionOdm(){
+      
 // not sure if anything needs to be in here.... seems to work though...
 
     }
     public void updateodm(){ 
-    
-    
-     boolean farmonedoRejectUpdate = false;
-     boolean farmtwodoRejectUpdate = false;
-     boolean equalNull;
-     PoseEstimate bestPose;
-     PoseEstimate farmone;
-     PoseEstimate farmtwo;
-     CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain;
-     boolean meta2 = false;
-     double AngularVelocity = drivetrain.getPigeon2().getAngularVelocityZWorld().getValueAsDouble();
-     SmartDashboard.putNumber("megatagDegrees",AngularVelocity);
-     double rotation = drivetrain.getPigeon2().getRotation2d().getDegrees();
     if (meta2 == false){
      try {
-       farmone = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-farmone");
+      // We are assigning the limelight named "farmone" to the PoseEstimate "farmOne"
+       farmOne = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-farmone");
        } catch (Exception e) {
-        farmone = null;
+        farmOne = null;
        } 
      try {
-       farmtwo = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-farmtwo");
+      // We are assigning the limelight named "farmtwo" to the PoseEstimate "farmTwo"
+       farmTwo = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-farmtwo");
        } catch (Exception e) {
-        farmtwo = null;
+        farmTwo = null;
        }
      //Limelight farmone process to reject bad pose estimites and keep the good ones 
-     if (farmone !=null){
+     if (farmOne !=null){
       SmartDashboard.putString("Limelight1 Status", "ready");
-     if(farmone.tagCount == 1 && farmone.rawFiducials.length == 1)
+     if(farmOne.tagCount == 1 && farmOne.rawFiducials.length == 1)
       {
-        if(farmone.rawFiducials[0].ambiguity > .7)
+        if(farmOne.rawFiducials[0].ambiguity > .7)
         {
-          farmonedoRejectUpdate = true;
+          farmOneDoRejectUpdate = true;
         }
-        if(farmone.rawFiducials[0].distToCamera > 3)
+        if(farmOne.rawFiducials[0].distToCamera > 3)
         {
-          farmonedoRejectUpdate = true;
+          farmOneDoRejectUpdate = true;
         }
       }
-      if(farmone.tagCount == 0)
+      if(farmOne.tagCount == 0)
       {
-        farmonedoRejectUpdate = true;
+        farmOneDoRejectUpdate = true;
       }}else{
-        farmonedoRejectUpdate=true;
+        farmOneDoRejectUpdate=true;
         SmartDashboard.putString("Limelight1 Status", "Disconnected");
     }
      //Limelight farmtwo process to reject bad pose estimites and keep the good ones
-     if (farmtwo !=null){ 
+     if (farmTwo !=null){ 
       SmartDashboard.putString("Limelight2 Status", "ready");
-     if(farmtwo.tagCount == 1 && farmtwo.rawFiducials.length == 1)
+     if(farmTwo.tagCount == 1 && farmTwo.rawFiducials.length == 1)
       {
-        if(farmtwo.rawFiducials[0].ambiguity > .7)
+        if(farmTwo.rawFiducials[0].ambiguity > .7)
         {
-          farmtwodoRejectUpdate = true;
+          farmTwoDoRejectUpdate = true;
         }
-        if(farmtwo.rawFiducials[0].distToCamera > 3)
+        if(farmTwo.rawFiducials[0].distToCamera > 3)
         {
-          farmtwodoRejectUpdate = true;
+          farmTwoDoRejectUpdate = true;
         }
       }
-      if(farmtwo.tagCount == 0)
+      if(farmTwo.tagCount == 0)
       {
-        farmtwodoRejectUpdate = true;
+        farmTwoDoRejectUpdate = true;
       }}else{
-      farmtwodoRejectUpdate = true;
+      farmTwoDoRejectUpdate = true;
       SmartDashboard.putString("Limelight2 Status", "Disconnected");
       }
-      //This is where we decide what pose we want to use to update our odomatery so we check if both are vaild if so we check which has a higher tag to image area 
-      if (farmonedoRejectUpdate != true && farmtwodoRejectUpdate != true){
-        bestPose = (farmone.avgTagArea >= farmtwo.avgTagArea ) ? farmone : farmtwo;
-      }else if (farmonedoRejectUpdate != true){
-        bestPose = farmone;
-      }else if(farmtwodoRejectUpdate != true) {
-        bestPose = farmtwo;
+      // This is the procces to take two limelights posees and find the Pose thats the closest to a april tag and use that pose. If one is null then the other is the presumed best pose. If both are null then best pose = NULL aswell.
+      if (farmOneDoRejectUpdate != true && farmTwoDoRejectUpdate != true){
+        bestPose = (farmOne.avgTagArea >= farmTwo.avgTagArea ) ? farmOne : farmTwo;
+      }else if (farmOneDoRejectUpdate != true){
+        bestPose = farmOne;
+      }else if(farmTwoDoRejectUpdate != true) {
+        bestPose = farmTwo;
       }else{bestPose=null;}
         
       if (bestPose != null) {
@@ -96,29 +100,31 @@ public class VisionOdm {
             bestPose.pose,
             bestPose.timestampSeconds);}
       } else{ 
+        // if meta2 = true this will run 
+        // We are assigning the limelight named "farmone" to the PoseEstimate "farmOne"
        try {LimelightHelpers.SetRobotOrientation("limelight-farmone", rotation, 0, 0, 0, 0, 0);
-       farmone = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-farmone");
+       farmOne = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-farmone");
         
        } catch (Exception e) {
-        farmone = null;
+        farmOne = null;
        } 
       
-      if(farmone !=null){
-        SmartDashboard.putString("Limelight1 Status", "ready");
-       if(Math.abs(AngularVelocity) > 720) // if our angular velocity is greater than 720 degrees per second, ignore vision updates
-      {
-        farmonedoRejectUpdate = true;
-      }
-      if(farmone.tagCount == 0)
-      {
-        farmonedoRejectUpdate = true;
-      }
-      if(!farmonedoRejectUpdate)
-      {
-        drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999));
-        drivetrain.addVisionMeasurement(
-            farmone.pose,
-            farmone.timestampSeconds);
+        if(farmOne !=null){
+          SmartDashboard.putString("Limelight1 Status", "ready");
+        if(Math.abs(AngularVelocity) > 720) // if our angular velocity is greater than 720 degrees per second, ignore vision updates
+        {
+          farmOneDoRejectUpdate = true;
+        }
+        if(farmOne.tagCount == 0)
+        {
+          farmOneDoRejectUpdate = true;
+        }
+        if(!farmOneDoRejectUpdate)
+        {
+          drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999));
+          drivetrain.addVisionMeasurement(
+              farmOne.pose,
+              farmOne.timestampSeconds);
       }}else{
         SmartDashboard.putString("Limelight1 Status", "Disconnected");
       }
