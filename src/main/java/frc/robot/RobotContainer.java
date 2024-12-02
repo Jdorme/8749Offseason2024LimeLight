@@ -24,7 +24,7 @@ import frc.robot.generated.TunerConstants;
 public class RobotContainer {
   private double MaxSpeed = TunerConstants.kSpeedAt12VoltsMps; // kSpeedAt12VoltsMps desired top speed
   private double MaxAngularRate = 5 * Math.PI; // 3/4 of a rotation per second max angular velocity
-  private final SendableChooser<Command> autoChooser;
+  //private final SendableChooser<Command> autoChooser;
 
 
   /* Setting up bindings for necessary control of the swerve drive platform */
@@ -61,17 +61,19 @@ public class RobotContainer {
   }
 
   public RobotContainer() {
+    configureBindings();
     // Build an auto chooser. This will use Commands.none() as the default option.
-    autoChooser = AutoBuilder.buildAutoChooser();
+   // autoChooser = AutoBuilder.buildAutoChooser();
 
     // Another option that allows you to specify the default auto by its name
     // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
 
-    SmartDashboard.putData("Auto Chooser", autoChooser);
+   // SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
   public Command getAutonomousCommand() {
+    return Commands.print("No autonomous command configured");
     // Return the selected command
-    return autoChooser.getSelected();
+    //return autoChooser.getSelected();
   }
 }

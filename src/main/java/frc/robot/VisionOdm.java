@@ -19,7 +19,7 @@ public class VisionOdm {
      PoseEstimate farmTwo;
      CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain;
      // Meta MegaTag2 offers more precise and reliable localization compared to the original MegaTag system
-     boolean meta2 = false; //false means you will use the orginal meta while true means you will use MegaTag2 
+     boolean meta2 = true; //false means you will use the orginal meta while true means you will use MegaTag2 
      
      double AngularVelocity = drivetrain.getPigeon2().getAngularVelocityZWorld().getValueAsDouble();
      
